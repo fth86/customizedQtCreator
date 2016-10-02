@@ -28,6 +28,7 @@
 #include "locator.h"
 
 #include <QWidget>
+#include <QTextEdit>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -79,6 +80,8 @@ private:
 
     Locator *m_locatorPlugin;
     LocatorModel *m_locatorModel;
+
+    QWidget* m_locatorContainer;
 
     CompletionList *m_completionList;
     QMenu *m_filterMenu;

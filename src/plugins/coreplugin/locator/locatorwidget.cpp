@@ -174,8 +174,10 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::ForegroundRole:
         if (index.column() == 1)
-            return QColor(Qt::darkGray);
+            return QColor(73,132,204);
         break;
+    case Qt::BackgroundRole:
+        return QColor(Qt::black);
     case Qt::UserRole:
         return qVariantFromValue(mEntries.at(index.row()));
     }
@@ -214,9 +216,10 @@ void CompletionList::resize()
 {
     const QStyleOptionViewItem &option = viewOptions();
     const QSize shint = itemDelegate()->sizeHint(option, model()->index(0, 0));
-    const QSize windowSize = ICore::mainWindow()->size();
 
+    const QSize windowSize = ICore::mainWindow()->size();
     const int width = qMax(730, windowSize.width() * 2 / 3);
+
     m_preferredSize = QSize(width, shint.height() * 17 + frameWidth() * 2);
     header()->resizeSection(0, width / 2);
     QTreeView::resize(m_preferredSize);
@@ -227,6 +230,7 @@ void CompletionList::resize()
 LocatorWidget::LocatorWidget(Locator *qop) :
     m_locatorPlugin(qop),
     m_locatorModel(new LocatorModel(this)),
+    m_locatorContainer(new QWidget(this)),
     m_completionList(new CompletionList(this)),
     m_filterMenu(new QMenu(this)),
     m_refreshAction(new QAction(tr("Refresh"), this)),
@@ -234,8 +238,17 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_fileLineEdit(new Utils::FancyLineEdit)
 {
     m_mainWindow = ICore::mainWindow();
-    // Explicitly hide the completion list popup.
-    m_completionList->hide();
+
+    //
+    QVBoxLayout* containerLayout = new QVBoxLayout(m_locatorContainer);
+    containerLayout->setMargin(0);
+    containerLayout->addWidget(m_completionList);
+    containerLayout->addWidget(m_fileLineEdit);
+    m_locatorContainer->setLayout(containerLayout);
+
+    m_completionList->show();
+    m_fileLineEdit->show();
+    m_locatorContainer->show();
 
     setAttribute(Qt::WA_Hover);
     setFocusProxy(m_fileLineEdit);
@@ -250,7 +263,23 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     QHBoxLayout *layout = new QHBoxLayout(this);
     setLayout(layout);
     layout->setMargin(0);
-    layout->addWidget(m_fileLineEdit);
+
+
+    // ---------- custom fileLineEdit stuff  ------------------------
+//    layout->addWidget(m_fileLineEdit);
+
+//    m_completionList->setParent( m_mainWindow );
+//    m_fileLineEdit->setParent( m_mainWindow );
+    m_fileLineEdit->setAutoFillBackground(true);
+
+    QPalette pal = m_fileLineEdit->palette();
+    pal.setColor(m_fileLineEdit->backgroundRole(), Qt::black);
+    m_fileLineEdit->setPalette(pal);
+
+    pal = m_completionList->palette();
+    pal.setColor(m_completionList->backgroundRole(), Qt::black);
+    m_completionList->setPalette(pal);
+    // -------------------------------------------------------------
 
     setWindowIcon(Utils::Icons::ZOOM.icon());
     const QPixmap pixmap = Utils::Icons::MAGNIFIER.pixmap();
@@ -393,7 +422,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             scheduleAcceptCurrentEntry();
             return true;
         case Qt::Key_Escape:
-            m_completionList->hide();
+            m_locatorContainer->hide();
             return true;
         case Qt::Key_Tab:
             m_completionList->next();
@@ -438,8 +467,9 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         }
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
         QFocusEvent *fev = static_cast<QFocusEvent *>(event);
-        if (fev->reason() != Qt::ActiveWindowFocusReason || !m_completionList->isActiveWindow())
-            m_completionList->hide();
+        if (fev->reason() != Qt::ActiveWindowFocusReason || !m_completionList->isActiveWindow()){
+            m_locatorContainer->hide();
+        }
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusIn) {
         QFocusEvent *fev = static_cast<QFocusEvent *>(event);
         if (fev->reason() != Qt::ActiveWindowFocusReason)
@@ -477,9 +507,38 @@ void LocatorWidget::setFocusToCurrentMode()
 void LocatorWidget::showCompletionList()
 {
     const int border = m_completionList->frameWidth();
-    const QSize size = m_completionList->preferredSize();
-    const QRect rect(mapToGlobal(QPoint(-border, -size.height() - border)), size);
-    m_completionList->setGeometry(rect);
+    const QSize completionListSize = m_completionList->preferredSize();
+//    const QRect rect(mapToGlobal(QPoint(-border, -size.height() - border)), size);
+
+    // ------------ hack: completion list position ------------------------
+    const QRect window = ICore::mainWindow()->geometry();
+    const int left   = window.left()  + (window.width()/2. - completionListSize.width()/2.);
+    const int right  = window.left() + (window.width()/2. + completionListSize.width()/2.);
+    const int top    = window.top() - 300;
+    const int bottom = top - completionListSize.height();
+    const QRect rect(left,-top,right-left,top-bottom);
+    // ----------- end hack ----------------------------------------------
+
+    // ----------- hack: locator textedit --------------------------------
+//    m_fileLineEdit->setGeometry(left,-(top+50),right-left,30);
+//    m_fileLineEdit->setGeometry(left,-(top+50),right-left,30);
+//    m_fileLineEdit->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+//    m_fileLineEdit->show();
+
+
+//    m_fileLineEdit->activateWindow();
+//    m_fileLineEdit->raise();
+//    m_fileLineEdit->setFocus();
+//    m_fileLineEdit->setWindowModality(Qt::ApplicationModal);
+
+
+//    m_completionList->setGeometry(rect);
+//    m_completionList->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+//    m_completionList->show();
+
+    m_locatorContainer->setGeometry(left, -(top+50),right-left,500);
+    m_locatorContainer->show();
+    m_fileLineEdit->show();
     m_completionList->show();
 }
 
@@ -605,7 +664,7 @@ void LocatorWidget::acceptCurrentEntry()
     if (!index.isValid())
         return;
     const LocatorFilterEntry entry = m_locatorModel->data(index, Qt::UserRole).value<LocatorFilterEntry>();
-    m_completionList->hide();
+    m_locatorContainer->hide();
     m_fileLineEdit->clearFocus();
     entry.filter->accept(entry);
 }
