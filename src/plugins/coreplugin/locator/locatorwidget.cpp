@@ -230,7 +230,7 @@ void CompletionList::resize()
 LocatorWidget::LocatorWidget(Locator *qop) :
     m_locatorPlugin(qop),
     m_locatorModel(new LocatorModel(this)),
-    m_locatorContainer(new QWidget(this)),
+//    m_locatorContainer(new QWidget(this)),
     m_completionList(new CompletionList(this)),
     m_filterMenu(new QMenu(this)),
     m_refreshAction(new QAction(tr("Refresh"), this)),
@@ -240,15 +240,15 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_mainWindow = ICore::mainWindow();
 
     //
-    QVBoxLayout* containerLayout = new QVBoxLayout(m_locatorContainer);
-    containerLayout->setMargin(0);
-    containerLayout->addWidget(m_completionList);
-    containerLayout->addWidget(m_fileLineEdit);
-    m_locatorContainer->setLayout(containerLayout);
+//    QVBoxLayout* containerLayout = new QVBoxLayout(m_locatorContainer);
+//    containerLayout->setMargin(0);
+//    containerLayout->addWidget(m_completionList);
+//    containerLayout->addWidget(m_fileLineEdit);
+//    m_locatorContainer->setLayout(containerLayout);
 
-    m_completionList->show();
-    m_fileLineEdit->show();
-    m_locatorContainer->show();
+    m_completionList->hide();
+    m_fileLineEdit->hide();
+//    m_locatorContainer->show();
 
     setAttribute(Qt::WA_Hover);
     setFocusProxy(m_fileLineEdit);
@@ -422,7 +422,9 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             scheduleAcceptCurrentEntry();
             return true;
         case Qt::Key_Escape:
-            m_locatorContainer->hide();
+//            m_locatorContainer->hide();
+            m_fileLineEdit->hide();
+            m_completionList->hide();
             return true;
         case Qt::Key_Tab:
             m_completionList->next();
@@ -468,7 +470,9 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
         QFocusEvent *fev = static_cast<QFocusEvent *>(event);
         if (fev->reason() != Qt::ActiveWindowFocusReason || !m_completionList->isActiveWindow()){
-            m_locatorContainer->hide();
+//            m_locatorContainer->hide();
+            m_fileLineEdit->hide();
+            m_completionList->hide();
         }
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusIn) {
         QFocusEvent *fev = static_cast<QFocusEvent *>(event);
@@ -520,24 +524,23 @@ void LocatorWidget::showCompletionList()
     // ----------- end hack ----------------------------------------------
 
     // ----------- hack: locator textedit --------------------------------
-//    m_fileLineEdit->setGeometry(left,-(top+50),right-left,30);
-//    m_fileLineEdit->setGeometry(left,-(top+50),right-left,30);
-//    m_fileLineEdit->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-//    m_fileLineEdit->show();
+    m_fileLineEdit->setGeometry(left,-(top+50),right-left,30);
+    m_fileLineEdit->setGeometry(left,-(top+50),right-left,30);
+    m_fileLineEdit->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+    m_fileLineEdit->show();
 
 
-//    m_fileLineEdit->activateWindow();
-//    m_fileLineEdit->raise();
-//    m_fileLineEdit->setFocus();
-//    m_fileLineEdit->setWindowModality(Qt::ApplicationModal);
+    m_fileLineEdit->activateWindow();
+    m_fileLineEdit->raise();
+    m_fileLineEdit->setFocus();
+    m_fileLineEdit->setWindowModality(Qt::ApplicationModal);
 
+    m_completionList->setGeometry(rect);
+    m_completionList->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+    m_completionList->show();
 
-//    m_completionList->setGeometry(rect);
-//    m_completionList->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-//    m_completionList->show();
-
-    m_locatorContainer->setGeometry(left, -(top+50),right-left,500);
-    m_locatorContainer->show();
+//    m_locatorContainer->setGeometry(left, -(top+50),right-left,500);
+//    m_locatorContainer->show();
     m_fileLineEdit->show();
     m_completionList->show();
 }
@@ -664,7 +667,9 @@ void LocatorWidget::acceptCurrentEntry()
     if (!index.isValid())
         return;
     const LocatorFilterEntry entry = m_locatorModel->data(index, Qt::UserRole).value<LocatorFilterEntry>();
-    m_locatorContainer->hide();
+//    m_locatorContainer->hide();
+    m_fileLineEdit->hide();
+    m_completionList->hide();
     m_fileLineEdit->clearFocus();
     entry.filter->accept(entry);
 }
