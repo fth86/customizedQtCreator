@@ -81,7 +81,7 @@ private:
     Locator *m_locatorPlugin;
     LocatorModel *m_locatorModel;
 
-    QWidget* m_locatorContainer;
+//    QWidget* m_locatorContainer;
 
     CompletionList *m_completionList;
     QMenu *m_filterMenu;

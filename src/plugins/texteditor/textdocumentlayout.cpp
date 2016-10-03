@@ -321,6 +321,20 @@ bool TextBlockUserData::findNextBlockClosingParenthesis(QTextCursor *cursor)
     return false;
 }
 
+
+//bool TextBlockUserData::findNextWhitespaceBoundary(QTextCursor *cursor)
+//{
+//    cursor->movePosition(cursor->Up);
+//    TextDocument::
+//}
+
+
+//bool TextBlockUserData::findPreviousWhitespaceBoundary(QTextCursor *cursor)
+//{
+
+//}
+
+
 TextBlockUserData::MatchType TextBlockUserData::matchCursorBackward(QTextCursor *cursor)
 {
     cursor->clearSelection();

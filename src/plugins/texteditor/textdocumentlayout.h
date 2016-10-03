@@ -108,6 +108,9 @@ public:
     static bool findPreviousBlockOpenParenthesis(QTextCursor *cursor, bool checkStartPosition = false);
     static bool findNextBlockClosingParenthesis(QTextCursor *cursor);
 
+//    static bool findNextWhitespaceBoundary(QTextCursor* cursor);
+//    static bool findPreviousWhitespaceBoundary(QTextCursor* cursor);
+
     // Get the code folding level
     inline int foldingIndent() const { return m_foldingIndent; }
     /* Set the code folding level.
