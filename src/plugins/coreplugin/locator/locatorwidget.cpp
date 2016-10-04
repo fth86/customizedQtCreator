@@ -524,8 +524,8 @@ void LocatorWidget::showCompletionList()
     // ----------- end hack ----------------------------------------------
 
     // ----------- hack: locator textedit --------------------------------
-    m_fileLineEdit->setGeometry(left,-(top+50),right-left,30);
-    m_fileLineEdit->setGeometry(left,-(top+50),right-left,30);
+//    m_fileLineEdit->setGeometry(left,-(top+50),right-left,30);
+    m_fileLineEdit->setGeometry(left,-(top+30),right-left,30);
     m_fileLineEdit->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     m_fileLineEdit->show();
 
