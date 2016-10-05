@@ -526,17 +526,17 @@ void LocatorWidget::showCompletionList()
     // ----------- hack: locator textedit --------------------------------
 //    m_fileLineEdit->setGeometry(left,-(top+50),right-left,30);
     m_fileLineEdit->setGeometry(left,-(top+30),right-left,30);
-    m_fileLineEdit->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-    m_fileLineEdit->show();
+    m_fileLineEdit->setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint);
+    m_fileLineEdit->setWindowModality(Qt::ApplicationModal);
 
+    m_fileLineEdit->show();
 
     m_fileLineEdit->activateWindow();
     m_fileLineEdit->raise();
     m_fileLineEdit->setFocus();
-    m_fileLineEdit->setWindowModality(Qt::ApplicationModal);
 
+    m_completionList->setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint);
     m_completionList->setGeometry(rect);
-    m_completionList->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     m_completionList->show();
 
 //    m_locatorContainer->setGeometry(left, -(top+50),right-left,500);
